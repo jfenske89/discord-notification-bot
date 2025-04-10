@@ -1,0 +1,17 @@
+{
+  "name": "discord-notification-bot",
+  "version": "1.0.0",
+  "main": "notification-bot.js",
+  "scripts": {
+    "send": "node notification-bot.js",
+    "purge": "node purge-conversation.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Jonathan Fenske",
+  "license": "MIT",
+  "description": "A personal notification bot.",
+  "dependencies": {
+    "discord.js": "^14.18.0",
+    "dotenv": "^16.4.7"
+  }
+}
