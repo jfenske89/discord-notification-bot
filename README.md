@@ -22,6 +22,14 @@ Copy `sample.env` to `.env` and fill in:
 
 Never commit `.env`.
 
+### Pre-commit hooks
+
+This repo uses [pre-commit](https://pre-commit.com/) to run a Prettier format check and [gitleaks](https://github.com/gitleaks/gitleaks) secret scanning before each commit.
+
+```bash
+pre-commit install
+```
+
 ## Usage
 
 ```bash
@@ -36,6 +44,23 @@ EOF
 ```
 
 Discord Markdown (`**bold**`, `_italic_`, `# heading`, `> quote`, `` `code` ``) is supported in the message.
+
+For longer or more complex Markdown, pass a file instead of piping to stdin:
+
+```bash
+npm run send -- --file ./message.md
+```
+
+Attach a single file (e.g. a log) alongside the message:
+
+```bash
+npm run send -- --attach ./build.log <<< "Build failed"
+```
+
+| Flag             | Description                          |
+| ---------------- | ------------------------------------ |
+| `--file`, `-f`   | Read the message content from a file |
+| `--attach`, `-a` | Attach a single file to the message  |
 
 ## Exit codes
 

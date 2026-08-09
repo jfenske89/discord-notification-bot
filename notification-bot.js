@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 
-const { createChannel, sendMessage } = require("./lib/discord");
+import { readFile } from "node:fs/promises";
+import { basename } from "node:path";
+import { createChannel, sendMessage } from "./lib/discord.js";
 
 async function main() {
   try {
@@ -12,16 +14,60 @@ async function main() {
       );
     }
 
-    const message = await readMessageFromStdin();
+    const { file, attach } = parseArgs(process.argv.slice(2));
+    const message = file
+      ? await readMessageFromFile(file)
+      : await readMessageFromStdin();
+    const attachment = attach ? await readAttachment(attach) : undefined;
     const { BOT_TOKEN: botToken, DM_USER_ID: userID } = process.env;
     const channel = await createChannel(botToken, userID);
-    await sendMessage(botToken, channel.id, message);
+    await sendMessage(botToken, channel.id, message, attachment);
 
     process.exit(0);
   } catch (error) {
     console.error(error.message);
     process.exit(1);
   }
+}
+
+function parseArgs(argv) {
+  const args = {};
+  const flags = {
+    "--file": "file",
+    "-f": "file",
+    "--attach": "attach",
+    "-a": "attach",
+  };
+
+  for (let i = 0; i < argv.length; i++) {
+    const key = flags[argv[i]];
+    if (!key) {
+      throw new Error(`Unknown argument: ${argv[i]}`);
+    }
+
+    const value = argv[++i];
+    if (!value) {
+      throw new Error(`Missing value for ${argv[i - 1]}`);
+    }
+
+    args[key] = value;
+  }
+
+  return args;
+}
+
+async function readMessageFromFile(filePath) {
+  const content = await readFile(filePath, "utf8");
+  const trimmed = content.trim();
+  if (!trimmed) {
+    throw new Error(`File is empty: ${filePath}`);
+  }
+  return trimmed;
+}
+
+async function readAttachment(filePath) {
+  const data = await readFile(filePath);
+  return { filename: basename(filePath), data };
 }
 
 async function readMessageFromStdin() {
